@@ -2,7 +2,7 @@ const myslq = require('mysql');
 
 const db = myslq.createConnection({
     host: 'localhost',
-    user: 'root',       
+    user: 'root',           
     password: '',
     database: 'fin_solutions'
 });
