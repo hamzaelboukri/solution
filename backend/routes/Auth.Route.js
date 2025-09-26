@@ -1,15 +1,11 @@
 const express = require('express');
-const AuthController = require('../controllers/auth.controller');
-const authMiddleware = require('../middleware/auth.middleware');
-
 const router = express.Router();
+const AuthController = require('../controller/auth.controller'); // Fixed variable name
 
-// Public routes
+// POST /api/auth/register
 router.post('/register', AuthController.register);
+
+// POST /api/auth/login
 router.post('/login', AuthController.login);
-
-
-router.get('/profile', authMiddleware, AuthController.getProfile);
-router.post('/logout', authMiddleware, AuthController.logout);
 
 module.exports = router;
