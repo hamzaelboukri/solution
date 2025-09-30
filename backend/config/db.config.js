@@ -1,29 +1,22 @@
-const mysql = require('mysql2'); // Fixed: mysql2 (not myslq)
+const mysql = require('mysql2');
 
-const db = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',           
-    password: '', // Add your MySQL password if you have one
-    database: 'fin_solutions'
+// Create connection pool
+const pool = mysql.createPool({
+    host: process.env.DB_HOST || 'localhost',
+    user: process.env.DB_USER || 'root',
+    password: process.env.DB_PASSWORD || '',
+    database: process.env.DB_NAME || 'fin_solutions',
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0
 });
 
-// Test connection function
-const testConnection = () => {
-    db.connect((err) => {   
-        if (err) {
-            console.error('Database connection error:', err);
-            throw err; // Important: throw error to catch in Server.js
-        } else {
-            console.log('✅ Connected to MySQL database.');
-        }    
-    });
-};
-
-// Execute query function (needed by your model)
+// Fixed: Uncommented executeQuery function
 const executeQuery = (sql, params = []) => {
     return new Promise((resolve, reject) => {
-        db.query(sql, params, (err, results) => {
+        pool.execute(sql, params, (err, results, fields) => {
             if (err) {
+                console.error('❌ Database query error:', err);
                 reject(err);
             } else {
                 resolve(results);
@@ -32,8 +25,21 @@ const executeQuery = (sql, params = []) => {
     });
 };
 
-// Export both functions
+// Test connection
+const testConnection = async () => {
+    try {
+        const connection = await pool.promise().getConnection();
+        console.log('✅ Connected to MySQL database');
+        connection.release();
+        return true;
+    } catch (error) {
+        console.error('❌ Database connection error:', error);
+        throw error;
+    }
+};
+
 module.exports = {
+    executeQuery, // Fixed: Now this is exported
     testConnection,
-    executeQuery  // This is needed by user.model.js
+    pool
 };

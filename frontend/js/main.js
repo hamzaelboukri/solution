@@ -12,9 +12,9 @@ document.addEventListener('DOMContentLoaded', function() {
         setupSignupPage();
     }
     
-    // Check authentication on protected pages
-    if (document.getElementById('protectedContent')) {
-        checkAuthentication();
+    // Setup dashboard
+    if (document.getElementById('userAvatar')) {
+        setupDashboard();
     }
 });
 
@@ -31,15 +31,7 @@ function setupLoginPage() {
         
         const result = await loginUser(email, password);
         
-        if (result.success) {
-            showMessage('message', '✅ Login successful! Redirecting...', 'success');
-            localStorage.setItem('token', result.token);
-            localStorage.setItem('user', JSON.stringify(result.user));
-            
-            setTimeout(() => {
-                window.location.href = '/';
-            }, 2000);
-        } else {
+        if (!result.success) {
             showMessage('message', `❌ ${result.message}`, 'error');
         }
     });
@@ -59,29 +51,32 @@ function setupSignupPage() {
         
         const result = await registerUser(name, email, password);
         
-        if (result.success) {
-            showMessage('message', '✅ Registration successful! Redirecting to login...', 'success');
-            
-            setTimeout(() => {
-                window.location.href = '/login';
-            }, 2000);
-        } else {
+        if (!result.success) {
             showMessage('message', `❌ ${result.message}`, 'error');
         }
     });
 }
 
-function checkAuthentication() {
+function setupDashboard() {
     if (!checkAuth()) {
-        window.location.href = '/login';
+        window.location.href = '/login.html';
         return;
     }
     
-    // User is authenticated, show protected content
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
-    document.getElementById('userInfo').innerHTML = `
-        <h3>Welcome, ${user.name}!</h3>
-        <p>Email: ${user.email}</p>
-        <button onclick="logout()">Logout</button>
-    `;
+    // User is authenticated, show dashboard content
+    const user = getCurrentUser();
+    if (user) {
+        // Update user info in dashboard
+        if (document.getElementById('userName')) {
+            document.getElementById('userName').textContent = user.name;
+        }
+        if (document.getElementById('userAvatar')) {
+            document.getElementById('userAvatar').textContent = user.name.charAt(0).toUpperCase();
+        }
+        
+        console.log('✅ Dashboard loaded for user:', user.name);
+    }
 }
+
+// Make functions globally available
+window.logout = logout;

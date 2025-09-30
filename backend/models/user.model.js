@@ -1,25 +1,39 @@
-const { executeQuery } = require('../config/db.config'); // Fixed path
+const { executeQuery } = require('../config/db.config');
 
-class User { // Changed from USER to User
-    static async create(userData) { // Changed from createUser to create
-        const { name, email, password } = userData;
-        const query = 'INSERT INTO users (name, email, password) VALUES (?, ?, ?)';
-        const result = await executeQuery(query, [name, email, password]);
-        return result.insertId;
+class User {
+    static async create(userData) {
+        try {
+            const { name, email, password } = userData;
+            const query = 'INSERT INTO users (name, email, password) VALUES (?, ?, ?)';
+            const result = await executeQuery(query, [name, email, password]);
+            return result.insertId;
+        } catch (error) {
+            console.error('Error creating user:', error);
+            throw error;
+        }
     }
 
-    static async findByEmail(email) { 
-        const query = 'SELECT * FROM users WHERE email = ?';
-        const results = await executeQuery(query, [email]);
-        return results[0];
+    static async findByEmail(email) {
+        try {
+            const query = 'SELECT * FROM users WHERE email = ?';
+            const results = await executeQuery(query, [email]);
+            return results[0] || null;
+        } catch (error) {
+            console.error('Error finding user by email:', error);
+            throw error;
+        }
     }
 
-    static async findById(id) { 
-        const query = 'SELECT * FROM users WHERE id = ?';
-        const results = await executeQuery(query, [id]);
-        return results[0];
+    static async findById(id) {
+        try {
+            const query = 'SELECT * FROM users WHERE id = ?';
+            const results = await executeQuery(query, [id]);
+            return results[0] || null;
+        } catch (error) {
+            console.error('Error finding user by id:', error);
+            throw error;
+        }
     }
 }
 
-// Don't forget to export!
 module.exports = User;
